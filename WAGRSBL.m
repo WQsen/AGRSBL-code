@@ -37,6 +37,7 @@ jmax=500;
 e=1;
 j1=0;
 Length_add=0;
+grid_interval=12;
 gri_f=1.5; % user define
 I_=2*floor( log2(grid_interval/gri_f) ); % AGR过程最大迭代数
 while (j1<=I_) %迭代次
