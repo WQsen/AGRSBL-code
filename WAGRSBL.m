@@ -59,14 +59,10 @@ while (j1<=I_) %迭代次
     end
     sigma_x_ii(:,ff)=diag(gamma)-diag(gamma).* Aa_sigma_y_Aa.'.*diag(gamma);  %
      YA_trace=YA_trace+(((norm(Y(:,:,ff)-Aa_(:,:,ff)*Mu_x(:,:,ff),'fro'))^2)+L*trace(B(:,:,ff)-B(:,:,ff)*sigma_y_inv(:,:,ff)*B(:,:,ff))); %
-    %% M-SBL
-    Mu_x_norm=Mu_x_norm+ sum(abs(Mu_x(:,:,ff)).^2, 2);  %对Mu_x逐行平方求和
+    Mu_x_norm=Mu_x_norm+ sum(abs(Mu_x(:,:,ff)).^2, 2);  
     end
     source_power=(L*( -F+sum(real(sigma_x_ii),2)./source_power)+sqrt(L^2*( -F+sum(real(sigma_x_ii),2)./source_power).^(2)+4*b*Mu_x_norm))/(2*b)+es;
-    
-    %% noise variance update1:
-    alpha0=(F*M*L)/YA_trace; %
-    
+    alpha0=(F*M*L)/YA_trace; 
     [~,spd_]=sort(source_power,'descend');
     spd=spd_(1:min((M-1),length(source_power)-1));
     source_id=spd; %
@@ -159,48 +155,23 @@ while  true
     gamma=diag(source_power);
     Mu_x_norm=zeros(length(source_power),1);
     Mu_x=[];sigma_x_ii=[];
+     YA_trace=0;
     for ff=1:F
     B(:,:,ff)=Aa_(:,:,ff)*gamma*Aa_(:,:,ff)';
     sigma_y(:,:,ff)=1/alpha0*eye(M)+B(:,:,ff);
     sigma_y_inv(:,:,ff)=inv(sigma_y(:,:,ff));
     Aa_sigma_y_inv=Aa_(:,:,ff)'* sigma_y_inv(:,:,ff);
-    Mu_x(:,:,ff)=gamma*Aa_sigma_y_inv*Y(:,:,ff);           % eq.(11)
+    Mu_x(:,:,ff)=gamma*Aa_sigma_y_inv*Y(:,:,ff);        
     Aa_sigma_y_Aa=[];
     for i=1:length(source_power)
         Aa_sigma_y_Aa(i)=Aa_sigma_y_inv(i,:)*Aa_(:,i,ff);
     end
     sigma_x_ii(:,ff)=diag(gamma)-diag(gamma).* Aa_sigma_y_Aa.'.*diag(gamma);  %
-    %% M-SBL
-    Mu_x_norm=Mu_x_norm+ sum(abs(Mu_x(:,:,ff)).^2, 2);  %对Mu_x逐行平方求和
+    Mu_x_norm=Mu_x_norm+ sum(abs(Mu_x(:,:,ff)).^2, 2); 
+       YA_trace=YA_trace+(((norm(Y(:,:,ff)-Aa_(:,:,ff)*Mu_x(:,:,ff),'fro'))^2)+L*trace(B(:,:,ff)-B(:,:,ff)*sigma_y_inv(:,:,ff)*B(:,:,ff))); %
     end
     source_power=(L*( -F+sum(real(sigma_x_ii),2)./source_power)+sqrt(L^2*( -F+sum(real(sigma_x_ii),2)./source_power).^(2)+4*b*Mu_x_norm))/(2*b)+es;
-      source_power_=source_power;
-     source_id=[]; 
-   source_power1=[];source_power2=[];source_power3=[];
-   source_power1 = source_power_(1:end-2);
-   source_power2 = source_power_(2:end-1);
-   source_power3 = source_power_(3:end);
-   IX=[]; PeakLoc0=[];SortIdx=[];SigLoc=[];source_id=[];SigLoc_=[];source_id_=[];
-   IX = find((source_power2 > source_power1) + (source_power2 >= source_power3) > 1);
-   PeakLoc0 = IX+1;   %PeakLoc0 is index of spectrum
-  [~,SortIdx] = sort(source_power_(PeakLoc0),'descend');%descend the spectrum，SortIdx 
-   %% noise
-   KP = min(length(PeakLoc0),K);
-   SigLoc = PeakLoc0(SortIdx(1:KP));
-   source_id_=sort(SigLoc,'ascend');
-   signal_id=source_id_;
-   
-
-   KP_=length(signal_id);
-   Ac=[];
-   Ac=[Aa_(:,signal_id,:)]; 
-   P=[]; 
-   AP_RY=0;
-   for ff=1:F
-   P(:,:,ff)=Ac(:,:,ff)*(Ac(:,:,ff)'*Ac(:,:,ff))^(-1)*Ac(:,:,ff)';                           
-   AP_RY=AP_RY+abs(trace((eye(M)-P(:,:,ff))*Ry(:,:,ff)));
-   end
-   alpha0=F*(M-K)/AP_RY;
+    alpha0=(F*M*L)/YA_trace; 
     Noise_variance=alpha0^(-1);
     if  norm((source_power-source_power_old),2)/norm(source_power_old,2)<tol1  || j2>500   %
         break
