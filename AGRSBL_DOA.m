@@ -155,11 +155,8 @@ while (j1<=I_) %迭代次
         Aa_sigma_y_Aa(i)=Aa_sigma_y_inv(i,:)*Aa_(:,i);
     end
     sigma_x_ii=diag(gamma)-diag(gamma).* Aa_sigma_y_Aa.'.*diag(gamma);  %
-    %% M-SBL
     Mu_x_norm= sum(abs(Mu_x).^2, 2);  %对Mu_x逐行平方求和
-    %% real Laplace
     source_power=(L*( -1+(real(sigma_x_ii))./source_power)+sqrt(L^2*( -1+(real(sigma_x_ii))./source_power).^(2)+4*b*Mu_x_norm))/(2*b)+es;
-    % noise variance update1:
     alpha0=(M*L)/(((norm(Y-Aa_*Mu_x,'fro'))^2)+L*trace(B-B*sigma_y_inv*B)); %
     %% AGR process:
     [~,spd_]=sort(source_power,'descend');
@@ -251,9 +248,7 @@ while  true
         Aa_sigma_y_Aa(i)=Aa_sigma_y_inv(i,:)*Aa_(:,i);
     end
     sigma_x_ii=diag(gamma)-diag(gamma).* Aa_sigma_y_Aa.'.*diag(gamma);  %
-    %% M-SBL
-    Mu_x_norm= sum(abs(Mu_x).^2, 2);  %对Mu_x逐行平方求和
-    %% real Laplace
+    Mu_x_norm= sum(abs(Mu_x).^2, 2);  
     source_power=(L*( -1+(real(sigma_x_ii))./source_power)+sqrt(L^2*( -1+(real(sigma_x_ii))./source_power).^(2)+4*b.*Mu_x_norm))./(2*b)+es;
     %% noise etimation
     source_power_=source_power;
@@ -330,7 +325,7 @@ for i=1:length(source_id)
     for agr= Azimuth(source_id(i)-1) :r_step:Azimuth(source_id(i)+1)  %
         ar=ar+1;
         aa=[];
-        aa=exp(1j*2*pi*f0*[0:M-1]'*sin(agr*pi/180)/c); %
+        aa=exp(1j*2*pi*f0*[0:M-1]'*sin(agr*pi/180)/c); 
         qk=sum(abs(aa'*sgY).^2);zk=real(aa'*sigma_yk_inv*aa);
         source_power_rere(ar)= ( -2*b-L*zk+sqrt( ((2*b+L*zk))^2-4*b*(b+L*zk-qk)) )/(2*b*zk);    %
         theta_r1(ar)= ( -L*log( ( 1+( source_power_rere(ar))*zk))+( qk)/( ( source_power_rere(ar))^(-1)+ zk )...
